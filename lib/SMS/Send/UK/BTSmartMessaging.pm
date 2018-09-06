@@ -148,12 +148,11 @@ sub send_sms {
     my $text = $params{text};
 
     # Add our authorisation credentials
-    my $credentials = encode_base64("$self->_login:$self->_password");
+    my $credentials = encode_base64($self->{'login'} . ':' . $self->{'password'});
     $ua->default_header('Authorization' => "Basic $credentials");
-
     # Send the request
     my $response = $ua->post(
-        $self->{base_url},
+        $self->{'base_url'},
         { destination => $destination, text => $text }
     );
 
