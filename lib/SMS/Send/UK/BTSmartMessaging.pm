@@ -103,6 +103,49 @@ sub new {
     return $self;
 }
 
+=head2 clean_to
+
+    # Examine a passed phone number and attempt to return the number
+    # in an international format, croak of a conversion is not possible
+    my $intl_number = clean_to($source_number);
+
+The C<clean_to> method accepts a single required parameter:
+
+The return value is the number in international format
+
+=over 4
+
+=item source_number
+
+A string containing the number to be cleaned
+
+=back
+
+=cut
+
+sub clean_number {
+    my $source_number = shift;
+
+    # The number may already be in the format we want
+    if ($source_number =~ /^44(?!4)/) {
+        return $source_number;
+    }
+    # Strip any leading +
+    elsif ($source_number =~ /^\+44/) {
+        $source_number =~ s/^\+/44/;
+        return $source_number;
+    }
+    # Replace a leading 0 with 44
+    elsif ($source_number =~ /^0/) {
+        $source_number =~ s/^0/44/;
+        return $source_number;
+    }
+    # We can't do anything with this number
+    else {
+        croak 'Unrecognised number format';
+    }
+}
+
 =head2 send_sms
 
     # Send a message
@@ -144,7 +187,7 @@ sub send_sms {
     }
 
     my $ua = LWP::UserAgent->new;
-    my $destination = $params{to};
+    my $destination = clean_number($params{to});
     my $text = $params{text};
 
     # Add our authorisation credentials
